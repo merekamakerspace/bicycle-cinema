@@ -8,9 +8,27 @@ import threading
 import redis
 import random
 import logging
+
+from os import listdir
+from os.path import isfile, join
+
 logging.basicConfig(filename='/home/pi/bc.log',level=logging.DEBUG)
 logging.info(time.ctime())
 logging.info("Initialsing.... waiting for stuff") 
+
+MOVIE_DIR = '/home/pi/movies/'
+
+#files = ['tiger.m4v', '1-rangtan.mp4', '2-PowerDown2PowerAll.mp4', 'founders-valley.mp4']
+
+files = [f for f in listdir(MOVIE_DIR) if isfile(join(MOVIE_DIR, f))]
+files.sort()
+
+logging.info("Video Files")
+for f in files:
+	logging.info(f) 
+
+fi = 0
+
 
 time.sleep(10)
 logging.info( "Starting...")
@@ -43,8 +61,16 @@ OMX_KILL_CMD = 'killall omxplayer.bin'
 
 MOVIE_DIR = '/home/pi/movies/'
 
-files = ['tiger.m4v', '1-rangtan.mp4', '2-PowerDown2PowerAll.mp4', 'founders-valley.mp4']
-fi = random.randint(0, 3)
+#files = ['tiger.m4v', '1-rangtan.mp4', '2-PowerDown2PowerAll.mp4', 'founders-valley.mp4']
+
+files = [f for f in listdir(MOVIE_DIR) if isfile(join(MOVIE_DIR, f))]
+files.sort()
+
+logging.info("Video Files")
+for f in files:
+	logging.info(f) 
+
+fi = 0
 
 try:
     os.mkfifo("/tmp/cmd")
