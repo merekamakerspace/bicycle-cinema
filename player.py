@@ -12,6 +12,7 @@ import logging
 from os import listdir
 from os.path import isfile, join
 
+#logging.basicConfig(filename='/home/pi/bc.log',level=logging.DEBUG)
 logging.basicConfig(filename='/home/pi/bc.log',level=logging.DEBUG)
 logging.info(time.ctime())
 logging.info("Initialsing.... waiting for stuff") 
@@ -73,11 +74,14 @@ for f in files:
 fi = 0
 
 try:
-    os.mkfifo("/tmp/cmd")
+	os.mkfifo("/tmp/cmd")
+	logging.info("Temp file created!")
+
 except OSError as e:
-    # 17 means the file already exists.
-    if e.errno != 17:
-        raise
+	logging.info("Temp file already exists")
+	# 17 means the file already exists.
+	if e.errno != 17:
+		raise
 
 
 paused = False
@@ -109,10 +113,12 @@ def checkVideoPlaying():
 def playVideo(videoFileName):
 	os.system(OMX_START_CMD + videoFileName + ' < /tmp/cmd &')
 	logging.info("Playing:" + videoFileName)
+
 logging.info( "Ready")
 r.set('bcomx:start', time.ctime())
 checkVideoPlaying()
 
+last_on = time.time()
 
 
 while True:
@@ -129,8 +135,9 @@ while True:
 
 			val = float(tokens[1])
 			logging.info(val)
-			if val > 9.8:
-				omxplaying = checkVideoPlaying()
+			if val > 9.8 and time.time() - last_on > 10:
+				last_on = time.time()
+				#omxplaying = checkVideoPlaying()
 				if not omxplaying:
 					#omxplaying = True
 					logging.info( "HDMI on")
@@ -174,14 +181,15 @@ while True:
 
 			if val < 4.9:
 			  if omxplaying:
-			  	os.system(OMX_STOP_CMD)	
+			  	os.system(OMX_STOP_CMD)
+				logging.info( "stoping video" + file )
 			  	omxplaying = checkVideoPlaying() 	
 			
 			#publish cap value to redis for future logging
 			r.publish("cap" , val)
 					
 
-		if screenOn and omxplaying:
+		if screenOn and omxplaying and time.time() - last_on > 5:
 			omxplaying = checkVideoPlaying()			
 		
 			if not omxplaying:
@@ -196,5 +204,6 @@ while True:
 		#raise
 		e = sys.exc_info()
 
-		logging.info( "something messed up", e)
+		logging.info( "something messed up")
+		logging.error(e)
 		
