@@ -28,7 +28,8 @@ logging.info("Video Files")
 for f in files:
 	logging.info(f) 
 
-fi = 0
+fi = 5
+logging.info("current file:" + files[fi])
 
 
 time.sleep(10)
@@ -71,7 +72,9 @@ logging.info("Video Files")
 for f in files:
 	logging.info(f) 
 
-fi = 0
+fi = 5
+
+logging.info(files[fi])
 
 try:
 	os.mkfifo("/tmp/cmd")
@@ -189,7 +192,7 @@ while True:
 			r.publish("cap" , val)
 					
 
-		if screenOn and omxplaying and time.time() - last_on > 5:
+		if omxplaying and time.time() - last_on > 5:
 			omxplaying = checkVideoPlaying()			
 		
 			if not omxplaying:
